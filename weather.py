@@ -5,7 +5,7 @@ def get_weather_forecast():
     Возвращает прогноз погоды на 24 часа.
     
     Returns:
-        dict: Словарь с ключами hours, temperature, cloud_cover, wind_speed
+        dict: Словарь с ключами hours, temperature, cloud_cover, wind_speed, humidity
     """
     # Список часов от 0 до 23
     hours = list(range(24))
@@ -54,11 +54,27 @@ def get_weather_forecast():
             speed = round(random.uniform(0, 6), 1)
         wind_speed.append(speed)
     
+    # Генерируем влажность в зависимости от температуры
+    humidity = []
+    for temp in temperature:
+        # Чем выше температура, тем ниже влажность
+        # При 5°C влажность около 85%, при 15°C влажность около 55%
+        # Формула: humidity = 95 - (temp - 5) * 4
+        # Но ограничиваем диапазон 40-95%
+        humidity_value = 95 - (temp - 5) * 4
+        
+        # Корректируем с учётом облачности (при высокой облачности влажность выше)
+        # Облачность влияет на влажность
+        # Этот эффект добавим позже, пока просто округляем
+        humidity_value = max(40, min(95, humidity_value))
+        humidity.append(round(humidity_value))
+    
     return {
         "hours": hours,
         "temperature": temperature,
         "cloud_cover": cloud_cover,
-        "wind_speed": wind_speed
+        "wind_speed": wind_speed,
+        "humidity": humidity
     }
 
 # Пример использования и вывода результата
@@ -66,15 +82,16 @@ if __name__ == "__main__":
     forecast = get_weather_forecast()
     
     print("Прогноз погоды на 24 часа:")
-    print("-" * 70)
+    print("-" * 80)
     
     # Выводим названия столбцов
-    print(f"{'Время':<8} {'Температура':<12} {'   Облачность':<12} {'  Ветер':<10}")
-    print("-" * 70)
+    print(f"{'Время':<8} {'Температура':<12} {'Облачность':<12} {'Ветер':<10} {'Влажность':<10}")
+    print("-" * 80)
     
     # Выводим данные в удобном формате
     for i in range(24):
         print(f"{forecast['hours'][i]:2d}:00      "
               f"{forecast['temperature'][i]:5.1f}°C       "
               f"{forecast['cloud_cover'][i]:3d}%          "
-              f"{forecast['wind_speed'][i]:4.1f} м/с")
+              f"{forecast['wind_speed'][i]:4.1f} м/с    "
+              f"{forecast['humidity'][i]:3d}%")
